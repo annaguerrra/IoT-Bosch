@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dash Temperatura</title>
+
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-gauges@2.1.7/gauge.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <div class="square">
+        <h1 class="title">Sensor de Temperatura</h1>
+
+        <!-- GAUGE -->
+        <canvas
+            id="gauge-temp"
+            data-type="radial-gauge"
+            data-width="250"
+            data-height="250"
+            data-units="°C"
+            data-title="Temp"
+            data-min-value="0"
+            data-max-value="100"
+            data-major-ticks="0,10,20,30,40,50,60,70,80,90,100"
+            data-minor-ticks="2"
+            data-stroke-ticks="true"
+            data-highlights='[
+                {"from": 0, "to": 40, "color": "rgba(0, 204, 102, .3)"},
+                {"from": 40, "to": 70, "color": "rgba(255, 255, 0, .3)"},
+                {"from": 70, "to": 100, "color": "rgba(255, 77, 77, .3)"}
+            ]'
+            data-color-plate="#2d2d2d"
+            data-color-major-ticks="#f5f5f5"
+            data-color-minor-ticks="#ddd"
+            data-color-title="#fff"
+            data-color-units="#ccc"
+            data-color-numbers="#eee"
+            data-color-needle="rgba(240, 128, 128, 1)"
+            data-color-needle-end="rgba(255, 160, 122, .9)"
+            data-value="0"
+            data-animation-rule="linear"
+            data-animation-duration="500"
+        ></canvas>
+
+        <div class="container2">
+
+            <!-- STATUS -->
+            <div id="statusConexao" class="status-box">
+                <span class="status-dot"></span> Aguardando...
+            </div>
+
+            <!-- CONTROLE -->
+            <div class="card">
+                <button
+                    id="btnMotor"
+                    class="btn-controle btn-off"
+                    onclick="toggleMotor()">
+                    DESLIGADO
+                </button>
+
+                <p style="margin-top: 20px; color: #888; font-size: 0.9rem;">
+                    Estado sincronizado com a ESP32
+                </p>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    const IP_ESP = "http://192.168.88.221"; // <-- TROQUE PELO IP DA SUA ESP32
+    let estadoMotorLocal = false;
+
+    async function atualizarDados() {
+        try {
+            const response = await fetch(`${IP_ESP}/api/status`);
+            if (!response.ok) throw new Error("Falha HTTP");
+
+            const data = await response.json();
+
+            // Atualiza o GAUGE corretamente
+            const gauge = document.gauges.get("gauge-temp");
+            if (gauge) {
+                gauge.value = data.temp;
+            }
+
+            // Estado do relé
+            estadoMotorLocal =
+                String(data.rele) === "true" ||
+                data.rele === 1 ||
+                data.rele === true;
+
+            atualizarVisualBotao();
+            setOnline(true);
+
+        } catch (error) {
+            console.error("Erro de conexão:", error);
+            setOnline(false);
+        }
+    }
+
+    async function toggleMotor() {
+        const novoEstado = estadoMotorLocal ? "off" : "on";
+
+        try {
+            await fetch(`${IP_ESP}/api/control?state=${novoEstado}`);
+            setTimeout(atualizarDados, 100);
+        } catch {
+            alert("Erro ao enviar comando. Verifique a conexão.");
+        }
+    }
+
+    function atualizarVisualBotao() {
+        const btn = document.getElementById("btnMotor");
+        if (!btn) return;
+
+        if (estadoMotorLocal) {
+            btn.innerText = "LIGADO";
+            btn.className = "btn-controle btn-on";
+        } else {
+            btn.innerText = "DESLIGADO";
+            btn.className = "btn-controle btn-off";
+        }
+    }
+
+    function setOnline(isOnline) {
+        const div = document.getElementById("statusConexao");
+        if (!div) return;
+
+        if (isOnline) {
+            div.innerHTML =
+                '<span class="status-dot online"></span> Sistema Online';
+        } else {
+            div.innerHTML =
+                '<span class="status-dot offline"></span> Desconectado';
+        }
+    }
+
+    // Atualização automática
+    setInterval(atualizarDados, 1000);
+    atualizarDados();
+</script>
+
+</body>
+</html>
