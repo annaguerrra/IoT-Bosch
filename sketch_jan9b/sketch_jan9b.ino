@@ -1,3 +1,5 @@
+// CONECTANDO NA INTERNET
+
 #include <WiFi.h>
 
 const char* ssid = "iPhone de Patrick";

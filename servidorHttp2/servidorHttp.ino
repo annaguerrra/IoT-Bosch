@@ -1,3 +1,5 @@
+// DASHBOARD DE TEMPERATURA
+
 /**
  * @author    patrosque
  * @brief     API RESTful Assíncrona para Dashboard Industrial.

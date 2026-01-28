@@ -1,3 +1,5 @@
+// TIMER
+
 #include <WiFi.h>
 
 hw_timer_t *timer = NULL; // seta um ponteiro nulo do tipo hw_timer_t
