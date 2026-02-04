@@ -1,3 +1,5 @@
+// acho que é os clicks que vão aumentando
+
 volatile int  botao = 0;
 
 void setup(){

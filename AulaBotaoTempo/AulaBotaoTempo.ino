@@ -1,3 +1,5 @@
+// AUMENTA TEMPO CONFORME APERTA BOTAO
+
 volatile int  botao = 0;
 int pinBotao = 26;
 int flagbotao = 0;
@@ -5,6 +7,7 @@ int flagbotao = 0;
 hw_timer_t *timer = NULL; 
 int tempo = 0;
 
+// se botao nao foi apertado, aperta e reseta tempo 
 void IRAM_ATTR funcaoBoa(){
   if(flagbotao != 1){   // 
     flagbotao = 1;
@@ -13,12 +16,13 @@ void IRAM_ATTR funcaoBoa(){
 
 }
 
+// se apertado e tempo maior que zero, diminui tempo
 void IRAM_ATTR onTimer(){ 
   if(flagbotao == 1){
     if(tempo > 0){
       tempo--;
     } else{
-      flagbotao = 
+      flagbotao = 0;
     }
   }
 }
@@ -43,4 +47,3 @@ void loop(){
   Serial.print("Tempo" + String(tempo));
   delay(500);
 }
-
