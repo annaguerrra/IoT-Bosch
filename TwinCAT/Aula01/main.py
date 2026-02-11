@@ -18,6 +18,27 @@ plc = pyads.Connection(anna, porta, ipAnna)
 
 plc.open()
 
+posicao = [0, 1, 2, 1, 3, 4, 3, 0]
+garra = [0, 0, 0, 1, 1, 1, 0, 0]
+
+status = plc.read_by_name("GVL.RobotStatus")
+lastPosition = plc.read_by_name("GVL.position")
+        
+plc.write_by_name("GVL.position", 0)
+plc.write_by_name("GVL.gripperStatus", 0)  
+plc.write_by_name("GVL.position", 1)
+
+      
+position = posicao[0]
+
+if(position != lastPosition ):
+    
+    
+plc.close()
+
+
+
+
 # ITERANDO VARIÁVEL 
 # plc.write_by_name("GVL.tempo", 1)
 
@@ -25,23 +46,7 @@ plc.open()
 # não fazer movimento em diagonal
     # POSITION          0 -> Home | 1 -> P1 [...]
     # GRIPPER_STATUS    0 -> Abre | 1 -> Fecha
-
-posicao = [0, 1, 2, 1, 3, 4, 3, 0]
-garra = [0, 0, 0, 1, 1, 1, 0, 0]
-
-status = plc.read_by_name("GVL.RobotStatus")
-
-# for i in posicao:
-#     for j in garra:
-        
-#         plc.write_by_name("GVL.position", posicao[i])
-#         time.sleep(seg)
-#         plc.write_by_name("GVL.gripperStatus", garra[j])  
-#         time.sleep(seg)
-# plc.write_by_name("GVL.position", 0)
-# plc.write_by_name("GVL.gripperStatus", 0)  
-# plc.write_by_name("GVL.position", 1)
-         
+   
 # plc.write_by_name("GVL.position", 2)     
 # plc.write_by_name("GVL.gripperStatus", 1)      
 # plc.write_by_name("GVL.position", 1)            
@@ -50,19 +55,3 @@ status = plc.read_by_name("GVL.RobotStatus")
 # plc.write_by_name("GVL.gripperStatus", 0)            
 # plc.write_by_name("GVL.position", 3)         
 # plc.write_by_name("GVL.position", 0)
-
-index = 0
-
-
-while (status == 1 ):
-    plc.write_by_name("GVL.position", posicao)
-    
-    position = plc.read_by_name("GVL.position")
-    
-    # if(plc.read_by_name("GVL.position") )
-    
-plc.close()
-
-
-
-
