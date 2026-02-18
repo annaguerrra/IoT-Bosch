@@ -1,0 +1,5 @@
+3.  CLP - Controla a lógica toda
+1.  Esteira  - Se detecção de Luz -> On
+                e temperatura < 35°C
+4.  Detecção de Luz -> Sensor Infravermelho -> Tem luz ou não
+2.  Robot Control
