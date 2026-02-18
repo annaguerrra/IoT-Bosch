@@ -5,6 +5,17 @@
 WiFiClient espClient;
 PubSubClient client(espClient);
 
+
+#define WIFI_SSID "BTIA_SON5CT"
+#define WIFI_PASS "IUVr4qSh8kQe"
+
+const char* mqtt_server = "broker.hivemq.com";
+const char* mqtt_client_id = "francisco";
+const char* topico_comando = "dta/infra";
+
+const int mqtt_port = 8884;
+
+
 const int pinStart = 32;
 const int pinEnd = 35;
 
@@ -63,24 +74,11 @@ void callback(char* topic, byte* payload, unsigned int length){
   }
 }
 
-void WiFiEvent(WiFiEvent_t event){
-  switch(event){
-    case ARDUINO_EVENT_WIFI_STA_GOT_IP:
-      Serial.println("WiFi conectado!");
-      attemptMqttConnection();
-      break;
-
-    case ARDUINO_EVENT_WIFI_STA_DISCONNECTED:
-      Serial.println("WiFi perdido!");
-      WiFi.begin(WIFI_SSID, WIFI_PASS);
-      break;
-  }
-}
 
 void setup() {
 
   Serial.begin(115200);
-
+  pinMode(pinOut, INPUT);
   pinMode(pinStart, INPUT);
   pinMode(pinEnd, INPUT);
 

@@ -1,0 +1,24 @@
+int sensorPinStart = 32; // Pino digital do sensor
+int sensorPinEnd = 35; // Pino digital do sensor
+int statusSensor1 = 0;
+int statusSensor2 = 0; // Variável para armazenar a leitura
+
+void setup() {
+  pinMode(sensorPinStart, INPUT); // Configura o pino do sensor como entrada
+  pinMode(sensorPinEnd, INPUT); // Configura o pino do sensor como entrada
+
+  Serial.begin(9600);        // Inicia comunicação serial
+}
+
+void loop() {
+  statusSensor1 = digitalRead(sensorPinStart); // Lê o sinal do sensor
+  statusSensor2 = digitalRead(sensorPinEnd); // Lê o sinal do sensor
+
+  if (statusSensor1 == LOW) { // Se objeto detectado (LOW é comum para detecção)
+    Serial.println("comecei");
+  }
+
+  if (statusSensor2 == LOW) { // Se objeto detectado (LOW é comum para detecção)
+    Serial.println("termineii");
+  }
+}
