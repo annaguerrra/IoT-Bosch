@@ -3,97 +3,81 @@
 #include "env.h"
 
 WiFiClient espClient;
-hw_timer_t *timer = NULL;
-PubSubClient client();
+PubSubClient client(espClient);
 
-const int pinIR = 32; 
-unsigned long time = 0; 
-bool conectado;
+const int pinIR = 32;
+int statusIR = 0;
 
-// conexão WiFi
-void WiFiEvent(WiFiEvent_t event){
-  switch(event){
-    case ARDUINO_EVENT_WIFI_STA_GOT_IP:
-      Serial.printl("WiFi conectado!");
-      break;
-    case ARDUINO_EVENT_WIFI_STA_DISCONNECTED:
-      Serial.println("WiFi perdido. Conectando novamente");
-      break;
+void WiFiEvent(WiFiEvent_t event){ 
+  switch(event){ 
+    case ARDUINO_EVENT_WIFI_STA_GOT_IP: 
+      Serial.printl("WiFi conectado!"); 
+      break; 
+    case ARDUINO_EVENT_WIFI_STA_DISCONNECTED: 
+      Serial.println("WiFi perdido. Conectando novamente"); 
+      break; 
   }
 }
 
-// timer usado na conexão 
-void IRAM_ATTR onTimer(){
-  if(!isConnected) time++;
-}
+boolean attemptMqttConnection() {
+  String clientId = String(mqtt_client_id) + "_" + WiFi.macAddress();
 
-// conectando no CLP - não terminado
-boolean attemptMqttConnection(){
-  String clientId = String(mqtt_client_id) + "_" + String(WiFi.macAddress());
+  if (client.connect(
+        clientId.c_str(),
+        NULL,
+        NULL,
+        topico_status,
+        0,
+        true,
+        "OFFLINE"
+      )) {
 
-  if(client.connect(
-      clientId.c_str(),
-      NULL,
-      NULL,
-      topico_status,
-      0,
-      true, 
-      "OFFLINE"
-  )){
-    return true;
-    Serial.println("Conectado.")
-    client.publish(topico_status, "luz", true);
+    Serial.println("MQTT conectado!");
+
+    client.publish(topico_status, "ONLINE", true);
     client.subscribe(topico_comando);
-  } 
-  else{
-    Serial.print(client.state());
+
+    return true;
+  } else {
+    Serial.print("Erro MQTT: ");
+    Serial.println(client.state());
     return false;
   }
 }
 
-void isConnected(){
-  if(!client.connected(){
-    conectado = false; 
-    if(time > 5000){
-      time = 0;
-      if(attemptMqttConnection()) time = 0;
-    } 
-    else{
-      conectado = true;
-      client.loop();
-    }
-  }
+void callback(char* topic, byte* payload, unsigned int length) {
+  Serial.println("Mensagem recebida");
 }
 
-void callback(char* topic, byte* payload, unsigned int length){
-  int statusSensor = digitalRead(pinIR);
+void setup() {
+  Serial.begin(115200);
 
-  if(statusSensor == LOW){
-    digitalWrite(LED_BUILTIN, HIGH);
-    Serial.println("Objeto detectado");
-  }
-  else{
-    digitalWrite(LED_BUILTIN, LOW);
-  }
-}
-
-void setup(){
-  Serial.begin(9600);
   pinMode(pinIR, INPUT);
-  pinMode(LED_BUILTINT);
+  pinMode(LED_BUILTIN, OUTPUT);
+
+  connectWiFi();
 
   client.setServer(mqtt_server, mqtt_port);
   client.setCallback(callback);
-
-  timer = timerBegin(1000000);
-  timerAttachInterrupt(timer, &onTimer);
-  timerAlarm(timer, 1000, true, 0);
 }
 
-void loop(){
-  isConnected();
+void loop() {
+  if (!client.connected()) {
+    connectMQTT();
+  }
+  client.loop();
+  int sensorState = digitalRead(pinIR);
+
+  if (sensorState == LOW) {
+    digitalWrite(LED_BUILTIN, HIGH);
+    client.publish(topico_status, "OBJETO_DETECTADO", true);
+    Serial.println("Objeto detectado");
+  } 
+  else {
+    digitalWrite(LED_BUILTIN, LOW);
+    client.publish(topico_status, "SEM_OBJETO", true);
+  }
 }
 
-
-
-
+  delay(100);
+}
