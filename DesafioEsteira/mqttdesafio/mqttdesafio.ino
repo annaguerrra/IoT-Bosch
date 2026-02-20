@@ -21,8 +21,11 @@ bool isConnected = false;
 const int pinStart = 32;
 const int pinEnd = 35;
 
-int statusSensorEnd = 0;
 int statusSensorStart = 0;
+int statusSensorEnd = 0;
+
+bool lastStateStart = HIGH;
+bool lastStateEnd = HIGH;
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -47,14 +50,20 @@ void loop() {
   statusSensorStart = digitalRead(pinStart);
   statusSensorEnd = digitalRead(pinEnd);
 
-  if (statusSensorStart == LOW) {
-    client.publish(topico_comando, "OBJETO_INICIO", true);
-    Serial.println("Objeto no Inicio");
+  if(statusSensorStart != lastStateStart){
+    lastStateStart = statusSensorStart;
+    if (statusSensorStart == LOW) {
+      client.publish(topico_comando, "OBJETO_INICIO", true);
+      Serial.println("Objeto no Inicio");
+    }
   }
 
-  if (statusSensorEnd == LOW) {
-    client.publish(topico_comando, "OBJETO_FIM", true);
-    Serial.println("Objeto no Fim");
+  if(statusSensorEnd != lastStateEnd){
+    lastStateEnd = statusSensorEnd;
+    if (statusSensorEnd == LOW) {
+      client.publish(topico_comando, "OBJETO_FIM", true);
+      Serial.println("Objeto no Fim");
+    }
   }
   taConectado();
 }
