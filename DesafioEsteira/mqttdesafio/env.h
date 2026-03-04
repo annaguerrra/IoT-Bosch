@@ -1,7 +1,7 @@
 #ifndef ENV_H
 #define ENV_H
-#define WIFI_SSID "anna"
-#define WIFI_PASS "annna#01"
+#define WIFI_SSID "iPhone de Patrick"
+#define WIFI_PASS "quadrado1"
 #define LED_PIN 22                                                             //led que já vem soldado na esp32 
 
 const char* mqtt_server    = "broker.hivemq.com";

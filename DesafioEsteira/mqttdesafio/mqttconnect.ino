@@ -3,8 +3,8 @@
 extern unsigned long tempo;
 
 void callback(char* topic, byte* payload, unsigned int length) {
-  Serial.print("MSG recebida no tópico: ");
-  Serial.println(topic);
+  //Serial.print("MSG recebida no tópico: ");
+  //Serial.println(topic);
 } 
 
 boolean attemptMqttConnection() {
